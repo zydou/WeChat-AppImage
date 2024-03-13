@@ -33,14 +33,39 @@ jobs:
           sudo apt-get install -y libfuse2
           bash build.sh
 
+      - name: create release note
+        run: |
+          shasum -a 1 WeChat-* > SHA1SUMS
+          echo "Build date: $(date '+%Y-%m-%d %H:%M:%S')" > note.md
+          echo '### SHA1 Checksums' >> note.md
+          echo '```' >> note.md  # Do not use double quotes
+          cat SHA1SUMS >> note.md
+          echo '```' >> note.md
+          cat note.md
+
       - name: release
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           VERSION="$(cat version.txt)"
-          gh release create "${VERSION}" --notes "WeChat ${VERSION}" --title "WeChat ${VERSION}" --repo "${{github.repository}}" || true
-          gh release upload "${VERSION}" "WeChat-${VERSION}-x86_64.AppImage" --clobber --repo "${{github.repository}}"
-          gh release upload "${VERSION}" "WeChat-${VERSION}-x86_64.tar.xz" --clobber --repo "${{github.repository}}"
+          gh release create "${VERSION}" --notes-file note.md --title "${VERSION}" --repo "${{github.repository}}" || true
+          gh release edit "${VERSION}" --notes-file note.md --title "${VERSION}" --repo "${{github.repository}}" || true
+          gh release upload "${VERSION}" ./WeChat-* --clobber --repo "${{github.repository}}"
+          gh release upload "${VERSION}" ./SHA1SUMS --clobber --repo "${{github.repository}}"
+
+      - name: create latest release note
+        if: ${{ inputs.latest }}
+        run: |
+          VERSION="$(cat version.txt)"
+          mv -v "WeChat-${VERSION}-x86_64.AppImage" "WeChat-x86_64.AppImage"
+          mv -v "WeChat-${VERSION}-x86_64.tar.xz" "WeChat-x86_64.tar.xz"
+          shasum -a 1 WeChat-* > SHA1SUMS
+          echo "Build date: $(date '+%Y-%m-%d %H:%M:%S')" > note.md
+          echo '### SHA1 Checksums' >> note.md
+          echo '```' >> note.md  # Do not use double quotes
+          cat SHA1SUMS >> note.md
+          echo '```' >> note.md
+          cat note.md
 
       - name: update as latest
         if: ${{ inputs.latest }}
@@ -48,9 +73,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           VERSION="$(cat version.txt)"
-          gh release create "WeChat" --prerelease --notes "WeChat ${VERSION}" --title "WeChat ${VERSION}" --repo "${{github.repository}}" || true
-          gh release edit "WeChat" --prerelease --notes "WeChat ${VERSION}" --title "WeChat ${VERSION}" --repo "${{github.repository}}" || true
-          mv "WeChat-${VERSION}-x86_64.AppImage" WeChat-x86_64.AppImage
-          mv "WeChat-${VERSION}-x86_64.tar.xz" WeChat-x86_64.tar.xz
-          gh release upload "WeChat" "WeChat-x86_64.AppImage" --clobber --repo "${{github.repository}}"
-          gh release upload "WeChat" "WeChat-x86_64.tar.xz" --clobber --repo "${{github.repository}}"
+          gh release create "WeChat" --prerelease --notes-file note.md --title "${VERSION}" --repo "${{github.repository}}" || true
+          gh release edit "WeChat" --prerelease --notes-file note.md --title "${VERSION}" --repo "${{github.repository}}" || true
+          gh release upload "WeChat" ./WeChat-* --clobber --repo "${{github.repository}}"
+          gh release upload "WeChat" ./SHA1SUMS --clobber --repo "${{github.repository}}"
