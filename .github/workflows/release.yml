@@ -8,7 +8,7 @@ on:
         required: true
         description: download url of WeChat deb package
         type: string
-        default: https://github.com/zydou/WeChat-AppImage/releases/download/backup/wechat-beta_1.0.0.145_amd64.deb
+        default: https://github.com/zydou/WeChat-AppImage/releases/download/backup/com.tencent.wechat_1.0.0.236_amd64.deb
       latest:
         description: whether to release as latest
         type: boolean

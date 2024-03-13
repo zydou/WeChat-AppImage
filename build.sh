@@ -3,7 +3,7 @@
 # This script is modified from https://github.com/ivan-hc/Chrome-appimage/raw/fe079615eb4a4960af6440fc5961a66c953b0e2d/chrome-builder.sh
 
 APP=WeChat
-URL="${DOWNLOAD_URL:-https://github.com/zydou/WeChat-AppImage/releases/download/backup/wechat-beta_1.0.0.145_amd64.deb}"
+URL="${DOWNLOAD_URL:-https://github.com/zydou/WeChat-AppImage/releases/download/backup/com.tencent.wechat_1.0.0.236_amd64.deb}"
 
 mkdir ./tmp
 cd ./tmp
@@ -13,11 +13,10 @@ wget -O wechat.deb "$URL"
 ar x ./wechat.deb
 tar -xf ./data.tar.xz
 mkdir $APP.AppDir
-mv ./opt/wechat-beta/* ./$APP.AppDir/
-mv ./usr/share/applications/*.desktop ./$APP.AppDir/
+cp -r ./opt/apps/com.tencent.wechat/files/* ./$APP.AppDir/
+cp ./opt/apps/com.tencent.wechat/entries/applications/*.desktop ./$APP.AppDir/
 sed -i 's#/usr/bin/wechat#wechat#g' ./$APP.AppDir/*.desktop
-sed -i 's#/opt/wechat-beta/icons/wechat.png#wechat#g' ./$APP.AppDir/*.desktop
-cp ./$APP.AppDir/icons/wechat.png ./$APP.AppDir/wechat.png
+cp ./opt/apps/com.tencent.wechat/entries/icons/hicolor/256x256/apps/com.tencent.wechat.png ./$APP.AppDir/com.tencent.wechat.png
 
 tar -xf ./control.tar.xz
 VERSION=$(cat control | grep Version | cut -c 10-)
