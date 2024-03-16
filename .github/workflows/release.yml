@@ -12,7 +12,7 @@ on:
       latest:
         description: whether to release as latest
         type: boolean
-        default: false
+        default: true
 
 permissions: write-all
 concurrency:
@@ -27,7 +27,7 @@ jobs:
       - uses: actions/checkout@main
       - name: build
         env:
-          url: ${{ inputs.url }}
+          DOWNLOAD_URL: ${{ inputs.url }}
         run: |
           sudo apt-get update -y
           sudo apt-get install -y libfuse2
