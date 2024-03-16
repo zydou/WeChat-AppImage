@@ -19,3 +19,16 @@ sudo cp -r ./login-detection/usr/lib/libactivation.so /usr/lib/libactivation.so
 sudo cp /etc/lsb-release /etc/lsb-release.bak
 sudo cp ./login-detection/etc/lsb-release-ukui /etc/lsb-release
 ```
+
+## FAQ
+
+### Can you integrate the Bypass Login Detection into the AppImage?
+
+No, it's not possible. See related issue: [#1](https://github.com/zydou/WeChat-AppImage/issues/1)
+
+### Is there any familiar projects like this?
+
+- [wechat-uos-bwarp](https://aur.archlinux.org/packages/wechat-uos-bwrap): For Arch Linux users.
+- [wechat-universal-flatpak](https://github.com/web1n/wechat-universal-flatpak): For Flatpak users.
+
+Note: Both of the above projects have built-in Bypass Login Detection.
