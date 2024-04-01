@@ -3,16 +3,12 @@ name: Release
 
 on:
   workflow_dispatch:
-    inputs:
-      url:
-        required: true
-        description: download url of WeChat deb package
-        type: string
-        default: https://github.com/zydou/WeChat-AppImage/releases/download/backup/com.tencent.wechat_1.0.0.236_amd64.deb
-      latest:
-        description: whether to release as latest
-        type: boolean
-        default: true
+  push:
+    branches:
+      - main
+    paths:
+      - build.sh
+      - .github/workflows/release.yml
 
 permissions: write-all
 concurrency:
@@ -21,17 +17,42 @@ concurrency:
 
 jobs:
   build:
-    name: build
+    name: build ${{ matrix.arch }}
     runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - {arch: x86_64, url: "https://github.com/zydou/WeChat-AppImage/releases/download/backup/com.tencent.wechat_1.0.0.238_amd64.deb" }
+          - {arch: aarch64, url: "https://github.com/zydou/WeChat-AppImage/releases/download/backup/com.tencent.wechat_1.0.0.238_arm64.deb" }
     steps:
       - uses: actions/checkout@main
       - name: build
         env:
-          DOWNLOAD_URL: ${{ inputs.url }}
+          ARCH: ${{ matrix.arch }}
+          URL: ${{ matrix.url }}
         run: |
           sudo apt-get update -y
           sudo apt-get install -y libfuse2
           bash build.sh
+
+      - name: upload artifacts
+        uses: actions/upload-artifact@main
+        with:
+          name: wechat-${{ matrix.arch }}
+          path: |
+            WeChat-*
+            version.txt
+
+  release:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download All Artifacts
+        uses: actions/download-artifact@v4
+        with:
+          pattern: wechat-*
+          merge-multiple: true
 
       - name: create release note
         run: |
@@ -54,11 +75,12 @@ jobs:
           gh release upload "${VERSION}" ./SHA1SUMS --clobber --repo "${{github.repository}}"
 
       - name: create latest release note
-        if: ${{ inputs.latest }}
         run: |
           VERSION="$(cat version.txt)"
           mv -v "WeChat-${VERSION}-x86_64.AppImage" "WeChat-x86_64.AppImage"
           mv -v "WeChat-${VERSION}-x86_64.tar.xz" "WeChat-x86_64.tar.xz"
+          mv -v "WeChat-${VERSION}-aarch64.AppImage" "WeChat-aarch64.AppImage"
+          mv -v "WeChat-${VERSION}-aarch64.tar.xz" "WeChat-aarch64.tar.xz"
           shasum -a 1 WeChat-* > SHA1SUMS
           echo "Build date: $(date '+%Y-%m-%d %H:%M:%S')" > note.md
           echo '### SHA1 Checksums' >> note.md
@@ -68,7 +90,6 @@ jobs:
           cat note.md
 
       - name: update as latest
-        if: ${{ inputs.latest }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |

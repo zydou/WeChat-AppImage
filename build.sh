@@ -5,7 +5,6 @@ set -euo pipefail
 shopt -s inherit_errexit
 
 APP=WeChat
-URL="${DOWNLOAD_URL:-https://github.com/zydou/WeChat-AppImage/releases/download/backup/com.tencent.wechat_1.0.0.236_amd64.deb}"
 
 mkdir ./tmp
 cd ./tmp
@@ -26,9 +25,9 @@ echo "$VERSION" | tee ../version.txt  # log version
 
 echo "Create a tarball"
 cd ./$APP.AppDir
-tar -cJvf ../"$APP-$VERSION-x86_64.tar.xz" .
+tar -cJvf ../"$APP-$VERSION-$ARCH.tar.xz" .
 cd ..
-mv -v ./"$APP-$VERSION-x86_64.tar.xz" ..
+mv -v ./"$APP-$VERSION-$ARCH.tar.xz" ..
 
 cat >> ./$APP.AppDir/AppRun << 'EOF'
 #!/bin/sh
@@ -39,6 +38,6 @@ EOF
 chmod a+x ./$APP.AppDir/AppRun
 
 echo "Create an AppImage"
-ARCH=x86_64 ./appimagetool -n --verbose ./$APP.AppDir ../"$APP-$VERSION-x86_64.AppImage"
+./appimagetool -n --verbose ./$APP.AppDir ../"$APP-$VERSION-$ARCH.AppImage"
 cd ..
 rm -rf ./tmp
