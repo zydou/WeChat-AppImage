@@ -26,7 +26,7 @@ VERSION=$(grep Version control | cut -c 10-)
 echo "$VERSION" | tee ../version.txt  # log version
 
 # install proot
-wget -q -O proot "https://github.com/zydou/WeChat-AppImage/releases/download/backup/proot-$(uname -m)"
+wget -q -O proot "https://github.com/zydou/WeChat-AppImage/releases/download/backup/proot-$ARCH"
 chmod a+x proot
 mv proot $APP.AppDir/
 
