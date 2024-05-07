@@ -6,6 +6,7 @@ shopt -s inherit_errexit
 
 APP=WeChat
 
+# extract deb
 mkdir ./tmp
 cd ./tmp
 wget -q -O appimagetool "https://github.com/AppImage/AppImageKit/releases/download/continuous/appimagetool-$(uname -m).AppImage"
@@ -19,21 +20,39 @@ cp -v ./opt/apps/com.tencent.wechat/entries/applications/*.desktop ./$APP.AppDir
 sed -i 's#/usr/bin/wechat#wechat#g' ./$APP.AppDir/*.desktop
 cp -v ./opt/apps/com.tencent.wechat/entries/icons/hicolor/256x256/apps/com.tencent.wechat.png ./$APP.AppDir/com.tencent.wechat.png
 
+# log version
 tar -xvf ./control.tar.*
 VERSION=$(grep Version control | cut -c 10-)
 echo "$VERSION" | tee ../version.txt  # log version
 
+# install proot
+wget -q -O proot "https://github.com/zydou/WeChat-AppImage/releases/download/backup/proot-$(uname -m)"
+chmod a+x proot
+mv proot $APP.AppDir/
+
+# install license
+wget -q -O license.tar.gz "https://github.com/zydou/WeChat-AppImage/releases/download/backup/license.tar.gz"
+tar -xvf ./license.tar.gz
+mv license $APP.AppDir/
+
+# create tarball
 echo "Create a tarball"
 cd ./$APP.AppDir
 tar -cJvf ../"$APP-$VERSION-$ARCH.tar.xz" .
 cd ..
 mv -v ./"$APP-$VERSION-$ARCH.tar.xz" ..
 
+# create appimage
 cat >> ./$APP.AppDir/AppRun << 'EOF'
 #!/bin/sh
 APP=wechat
 HERE="$(dirname "$(readlink -f "${0}")")"
-exec "${HERE}"/$APP "$@"
+exec $HERE/proot -b $HERE/libuosdevicea.so:/usr/lib/license/libuosdevicea.so \
+  -b $HERE/license/etc/os-release:/etc/os-release \
+  -b $HERE/license/etc/lsb-release:/etc/lsb-release \
+  -b $HERE/license/var/lib/uos-license/.license.json:/var/lib/uos-license/.license.json \
+  -b $HERE/license/var/uos/.license.key:/var/uos/.license.key \
+  $HERE/wechat "$@"
 EOF
 chmod a+x ./$APP.AppDir/AppRun
 
