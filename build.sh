@@ -9,7 +9,7 @@ APP=WeChat
 # extract deb
 mkdir ./tmp
 cd ./tmp
-wget -q -O appimagetool "https://github.com/AppImage/AppImageKit/releases/download/continuous/appimagetool-$(uname -m).AppImage"
+wget -q -O appimagetool "https://github.com/AppImage/appimagetool/releases/download/continuous/appimagetool-$(uname -m).AppImage"
 chmod a+x ./appimagetool
 wget -q -O wechat.deb "$URL"
 ar x ./wechat.deb

@@ -24,8 +24,8 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - {arch: x86_64, url: "https://github.com/zydou/WeChat-AppImage/releases/download/backup/com.tencent.wechat_1.0.0.241_amd64.deb"}
-          - {arch: aarch64, url: "https://github.com/zydou/WeChat-AppImage/releases/download/backup/com.tencent.wechat_1.0.0.241_arm64.deb"}
+          - {arch: x86_64, url: "https://github.com/zydou/WeChat-AppImage/releases/download/backup/com.tencent.wechat_4.0.0.21_amd64.deb"}
+          - {arch: aarch64, url: "https://github.com/zydou/WeChat-AppImage/releases/download/backup/com.tencent.wechat_4.0.0.21_arm64.deb"}
     steps:
       - uses: actions/checkout@main
       - name: build
@@ -34,7 +34,7 @@ jobs:
           URL: ${{ matrix.url }}
         run: |
           sudo apt-get update -y
-          sudo apt-get install -y libfuse2
+          sudo apt-get install -y libfuse2 desktop-file-utils
           bash build.sh
 
       - name: upload artifacts
