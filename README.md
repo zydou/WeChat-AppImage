@@ -1,4 +1,6 @@
-# WeChat AppImage
+# ⚠️ 微信团队已发布[官方版AppImage](https://linux.weixin.qq.com), 此仓库不再维护
+
+## WeChat AppImage
 
 AppImage version of WeChat client for linux desktop.
 
